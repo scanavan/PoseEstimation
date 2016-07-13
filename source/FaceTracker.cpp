@@ -61,6 +61,7 @@ void FaceTracker::Initialize()
 		throw(FaceTrackerException("Error : IKinectSensor::get_CoordinateMapper()"));
 	}
 
+	//feature from Kinect we want
 	features = FaceFrameFeatures::FaceFrameFeatures_BoundingBoxInColorSpace
 		| FaceFrameFeatures::FaceFrameFeatures_PointsInColorSpace
 		| FaceFrameFeatures::FaceFrameFeatures_RotationOrientation
@@ -73,6 +74,7 @@ void FaceTracker::Initialize()
 		| FaceFrameFeatures::FaceFrameFeatures_Glasses
 		| FaceFrameFeatures::FaceFrameFeatures_FaceEngagement;
 
+	//set them up for each possible face
 	for (int i = 0; i < BODY_COUNT; ++i)
 	{
 		hResult = CreateFaceFrameSource(sensor, 0, features, &faceSource[i]);
@@ -87,6 +89,7 @@ void FaceTracker::Initialize()
 			throw(FaceTrackerException("Error : IFaceFrameSource::OpenReader()"));
 		}
 	}
+	//set buffers
 	description->get_Width(&width);
 	description->get_Height(&height);
 	bufferSize = width * height * 4 * sizeof(unsigned char);
@@ -94,6 +97,7 @@ void FaceTracker::Initialize()
 	bufferMat = cv::Mat(height, width, CV_8UC4);
 	faceMat = cv::Mat(height / 2, width / 2, CV_8UC4);
 
+	//initialize colors for each face
 	faceColors[0] = cv::Vec3b(255, 0, 0);
 	faceColors[1] = cv::Vec3b(0, 255, 0);
 	faceColors[2] = cv::Vec3b(0, 0, 255);
@@ -101,6 +105,7 @@ void FaceTracker::Initialize()
 	faceColors[4] = cv::Vec3b(255, 0, 255);
 	faceColors[5] = cv::Vec3b(0, 255, 255);
 
+	//different expressions we care about. NOTE: May not need expression stuff, but could be useful.
 	faceProperties[0] = "Happy";
 	faceProperties[1] = "Engaged";
 	faceProperties[2] = "WearingGlasses";
@@ -112,6 +117,7 @@ void FaceTracker::Initialize()
 }
 void FaceTracker::Start(bool detach)
 {
+	//spawn thread with Run function. If detach is true, then just return back to main thread. If it is false, then wait for thread to end before returning.
 	if (detach)
 	{
 		std::thread(&FaceTracker::Run, this).detach();
@@ -171,6 +177,7 @@ void FaceTracker::Run()
 		}
 		SafeRelease(pBodyFrame);
 
+		//get face data for each face found in frame
 		for (int i = 0; i < BODY_COUNT; i++)
 		{
 			IFaceFrame* pFaceFrame(nullptr);
@@ -219,8 +226,10 @@ void FaceTracker::Run()
 				SafeRelease(pFaceFrame);
 			}
 		}
+		//show image with face data drawn
 		cv::resize(bufferMat, faceMat, cv::Size(), 0.5, 0.5);
 		imshow(windowName, faceMat);
+		//check for escape
 		if (cv::waitKey(20) == VK_ESCAPE)
 		{
 			break;
