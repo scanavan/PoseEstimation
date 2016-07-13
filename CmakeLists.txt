@@ -1,0 +1,28 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0 FATAL_ERROR)
+cmake_policy(VERSION 2.8)
+PROJECT(FaceTracking)
+#make sure we only build release
+SET(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING "" FORCE)
+
+#include and source dirs
+SET(OPENCV_DIR "C:/OpenCV/build/")
+SET(KINECT_DIR "C:/Program Files/Microsoft SDKs/Kinect/v2.0_1409/")
+SET(SOURCE_DIR "source")
+SET(INCLUDE_DIR "include")
+
+FILE(GLOB SOURCE_FILES ${SOURCE_DIR}/*.cpp)
+FILE(GLOB HEADER_FILES ${INCLUDE_DIR}/*.h)
+
+#header filters
+SOURCE_GROUP("Header Files" FILES ${HEADER_FILES})
+#source filters
+SOURCE_GROUP("Source Files" FILES ${SOURCE_FILES})
+
+#make sure we include opencv include dir
+INCLUDE_DIRECTORIES(${KINECT_DIR}/inc ${INCLUDE_DIR} ${OPENCV_DIR}/include)
+#include opencv lib directory
+LINK_DIRECTORIES(${KINECT_DIR}/Lib/x64/ ${OPENCV_DIR}/x64/vc12/lib/)
+#create exe
+ADD_EXECUTABLE(FaceTracking ${SOURCE_FILES} ${HEADER_FILES})
+#link libs
+TARGET_LINK_LIBRARIES(FaceTracking Kinect20.lib Kinect20.Face opencv_world310.lib)
