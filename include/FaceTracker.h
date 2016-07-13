@@ -14,9 +14,14 @@ class FaceTracker
 {
 public:
 	FaceTracker(std::string name="Face Tracker");
+	//init data
 	void Initialize();
-	void Run();
-
+	//spawn thread
+	void Start(bool detach = false);
+	//return pose data
+	int GetRoll();
+	int GetYaw();
+	int GetPitch();
 private:
 	HRESULT hResult;
 
@@ -57,6 +62,12 @@ private:
 			interfaceToRelease = NULL;
 		}
 	}
-	void FaceTracker::ExtractFaceRotationInDegrees(const Vector4* pQuaternion, int* pPitch, int* pYaw, int* pRoll);
+	//normal operation
+	void Run();
+	//pose estimation
+	void ExtractFaceRotationInDegrees(const Vector4* pQuaternion);
+	int roll = 0;
+	int pitch = 0;
+	int yaw = 0;
 };
 #endif

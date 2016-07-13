@@ -1,6 +1,7 @@
 #include "FaceTracker.h"
 #include "FaceTrackerException.h"
 #include <iostream>
+#include <thread>
 
 FaceTracker::FaceTracker(std::string name) :
 	windowName(name)
@@ -109,6 +110,17 @@ void FaceTracker::Initialize()
 	faceProperties[6] = "MouthMoved";
 	faceProperties[7] = "LookingAway";
 }
+void FaceTracker::Start(bool detach)
+{
+	if (detach)
+	{
+		std::thread(&FaceTracker::Run, this).detach();
+	}
+	else
+	{
+		std::thread(&FaceTracker::Run, this).join();
+	}
+}
 void FaceTracker::Run()
 {
 	cv::namedWindow(windowName);
@@ -173,8 +185,6 @@ void FaceTracker::Run()
 					hResult = pFaceFrame->get_FaceFrameResult(&pFaceResult);
 					if (SUCCEEDED(hResult) && pFaceResult != nullptr)
 					{
-						std::vector<std::string> result;
-
 						// Face Point
 						PointF facePoint[FacePointType::FacePointType_Count];
 						hResult = pFaceResult->GetFacePointsInColorSpace(FacePointType::FacePointType_Count, facePoint);
@@ -199,9 +209,7 @@ void FaceTracker::Run()
 							hResult = pFaceResult->get_FaceRotationQuaternion(&faceRotation);
 							if (SUCCEEDED(hResult))
 							{
-								int pitch, yaw, roll;
-								ExtractFaceRotationInDegrees(&faceRotation, &pitch, &yaw, &roll);
-								result.push_back("Pitch, Yaw, Roll : " + std::to_string(pitch) + ", " + std::to_string(yaw) + ", " + std::to_string(roll));
+								ExtractFaceRotationInDegrees(&faceRotation);
 							}
 
 						}
@@ -219,7 +227,7 @@ void FaceTracker::Run()
 		}
 	}
 }
-void FaceTracker::ExtractFaceRotationInDegrees(const Vector4* pQuaternion, int* pPitch, int* pYaw, int* pRoll)
+void FaceTracker::ExtractFaceRotationInDegrees(const Vector4* pQuaternion)
 {
 	double x = pQuaternion->x;
 	double y = pQuaternion->y;
@@ -227,7 +235,19 @@ void FaceTracker::ExtractFaceRotationInDegrees(const Vector4* pQuaternion, int* 
 	double w = pQuaternion->w;
 
 	// convert face rotation quaternion to Euler angles in degrees
-	*pPitch = static_cast<int>(std::atan2(2 * (y * z + w * x), w * w - x * x - y * y + z * z) / M_PI * 180.0f);
-	*pYaw = static_cast<int>(std::asin(2 * (w * y - x * z)) / M_PI * 180.0f);
-	*pRoll = static_cast<int>(std::atan2(2 * (x * y + w * z), w * w + x * x - y * y - z * z) / M_PI * 180.0f);
+	pitch = static_cast<int>(std::atan2(2 * (y * z + w * x), w * w - x * x - y * y + z * z) / M_PI * 180.0f);
+	yaw = static_cast<int>(std::asin(2 * (w * y - x * z)) / M_PI * 180.0f);
+	roll = static_cast<int>(std::atan2(2 * (x * y + w * z), w * w + x * x - y * y - z * z) / M_PI * 180.0f);
+}
+int FaceTracker::GetRoll()
+{
+	return roll;
+}
+int FaceTracker::GetYaw()
+{
+	return yaw;
+}
+int FaceTracker::GetPitch()
+{
+	return pitch;
 }

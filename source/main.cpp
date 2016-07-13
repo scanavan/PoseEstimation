@@ -8,7 +8,7 @@ int main()
 	{
 		FaceTracker faceTracker;
 		faceTracker.Initialize();
-		faceTracker.Run();
+		faceTracker.Start();
 	}
 	catch (FaceTrackerException& error)
 	{
