@@ -1,6 +1,7 @@
 #include <iostream>
 #include "FaceTracker.h"
 #include "FaceTrackerException.h"
+#include "FatigueDetection.h"
 
 int main()
 {
@@ -8,7 +9,19 @@ int main()
 	{
 		FaceTracker faceTracker;
 		faceTracker.Initialize();
-		faceTracker.Start();
+		faceTracker.Start(true);
+		FatigueDetection fatigueDetection;
+		for (;;)
+		{
+			if (faceTracker.FaceFound())
+			{
+				std::cout << fatigueDetection.DetectFatigue(faceTracker.GetPose()) << std::endl;
+			}
+			if (cv::waitKey(33) == 'a')
+			{
+				break;
+			}
+		}
 	}
 	catch (FaceTrackerException& error)
 	{

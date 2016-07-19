@@ -10,18 +10,35 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+struct Pose
+{
+	float roll;
+	float pitch;
+	float yaw;
+	Pose() : roll(0.f), pitch(0.f), yaw(0.f) {}
+	Pose(float r, float p, float y) : roll(r), pitch(p), yaw(y) {}
+	friend std::ostream& operator<<(std::ostream& os, const Pose& pose)
+	{
+		if (pose.roll != 0.f && pose.pitch != 0.f && pose.yaw != 0.f)
+		{
+			os << "(" << pose.roll << ", " << pose.pitch << ", " << pose.yaw << ")" << std::endl;
+		}
+		return os;
+	}
+};
 class FaceTracker
 {
 public:
-	FaceTracker(std::string name="Face Tracker");
+	FaceTracker(std::string name = "Face Tracker");
 	//init data
 	void Initialize();
 	//spawn thread
 	void Start(bool detach = false);
 	//return pose data
-	int GetRoll();
-	int GetYaw();
-	int GetPitch();
+	Pose GetPose() const;
+	//if face is found
+	bool FaceFound();
+
 private:
 	HRESULT hResult;
 
@@ -56,7 +73,7 @@ private:
 	template<class Interface>
 	inline void SafeRelease(Interface *& interfaceToRelease)
 	{
-		if (interfaceToRelease != NULL) 
+		if (interfaceToRelease != NULL)
 		{
 			interfaceToRelease->Release();
 			interfaceToRelease = NULL;
@@ -66,8 +83,6 @@ private:
 	void Run();
 	//pose estimation
 	void ExtractFaceRotationInDegrees(const Vector4* pQuaternion);
-	int roll = 0;
-	int pitch = 0;
-	int yaw = 0;
+	Pose pose;
 };
 #endif

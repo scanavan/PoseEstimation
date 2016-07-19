@@ -8,6 +8,10 @@ FaceTracker::FaceTracker(std::string name) :
 {
 
 }
+bool FaceTracker::FaceFound()
+{
+	return (pose.roll != 0.f && pose.pitch != 0.f && pose.yaw != 0.f);
+}
 void FaceTracker::Initialize()
 {
 	hResult = S_OK;
@@ -244,19 +248,11 @@ void FaceTracker::ExtractFaceRotationInDegrees(const Vector4* pQuaternion)
 	double w = pQuaternion->w;
 
 	// convert face rotation quaternion to Euler angles in degrees
-	pitch = static_cast<int>(std::atan2(2 * (y * z + w * x), w * w - x * x - y * y + z * z) / M_PI * 180.0f);
-	yaw = static_cast<int>(std::asin(2 * (w * y - x * z)) / M_PI * 180.0f);
-	roll = static_cast<int>(std::atan2(2 * (x * y + w * z), w * w + x * x - y * y - z * z) / M_PI * 180.0f);
+	pose.pitch = static_cast<float>(std::atan2(2 * (y * z + w * x), w * w - x * x - y * y + z * z) / M_PI * 180.0f);
+	pose.yaw = static_cast<float>(std::asin(2 * (w * y - x * z)) / M_PI * 180.0f);
+	pose.roll = static_cast<float>(std::atan2(2 * (x * y + w * z), w * w + x * x - y * y - z * z) / M_PI * 180.0f);
 }
-int FaceTracker::GetRoll()
+Pose FaceTracker::GetPose() const
 {
-	return roll;
-}
-int FaceTracker::GetYaw()
-{
-	return yaw;
-}
-int FaceTracker::GetPitch()
-{
-	return pitch;
+	return pose;
 }
