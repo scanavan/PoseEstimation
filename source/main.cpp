@@ -15,7 +15,8 @@ int main()
 		{
 			if (faceTracker.FaceFound())
 			{
-				std::cout << fatigueDetection.DetectFatigue(faceTracker.GetPose()) << std::endl;
+				//std::cout << fatigueDetection.DetectFatigue(faceTracker.GetPose()) << std::endl;
+				std::cout << faceTracker.GetFaceFeatures() << std::endl;
 			}
 			if (cv::waitKey(33) == 'a')
 			{

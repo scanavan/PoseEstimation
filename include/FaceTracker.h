@@ -26,6 +26,29 @@ struct Pose
 		return os;
 	}
 };
+struct FaceFeature
+{
+	bool happy;
+	bool engaged;
+	bool wearingGlasses;
+	bool leftEyeClosed;
+	bool rightEyeClosed;
+	bool mouthOpen;
+	bool mouthMoved;
+	bool lookingAway;
+	friend std::ostream& operator<<(std::ostream& os, const FaceFeature& feature)
+	{
+		os << "Happy: " << feature.happy << std::endl
+			<< "Engaged: " << feature.engaged << std::endl
+			<< "WearingGlasses: " << feature.wearingGlasses << std::endl
+			<< "Left Eye Closed: " << feature.leftEyeClosed << std::endl
+			<< "Right Eye Closed: " << feature.rightEyeClosed << std::endl
+			<< "Mouth Open: " << feature.mouthOpen << std::endl
+			<< "Mouth Moved: " << feature.mouthMoved << std::endl
+			<< "Looking Away: " << feature.lookingAway << std::endl;
+		return os;
+	}
+};
 class FaceTracker
 {
 public:
@@ -36,6 +59,8 @@ public:
 	void Start(bool detach = false);
 	//return pose data
 	Pose GetPose() const;
+	//get all of the face features from the Kinect (happy, etc.)
+	FaceFeature GetFaceFeatures() const;
 	//if face is found
 	bool FaceFound();
 
@@ -69,7 +94,7 @@ private:
 	cv::Vec3b faceColors[BODY_COUNT];
 
 	std::string faceProperties[FaceProperty::FaceProperty_Count];
-
+	DetectionResult facePropertyList[FaceProperty::FaceProperty_Count];
 	template<class Interface>
 	inline void SafeRelease(Interface *& interfaceToRelease)
 	{
@@ -83,6 +108,9 @@ private:
 	void Run();
 	//pose estimation
 	void ExtractFaceRotationInDegrees(const Vector4* pQuaternion);
+	void ExtractFaceProperties();
 	Pose pose;
+
+	FaceFeature faceFeature;
 };
 #endif
