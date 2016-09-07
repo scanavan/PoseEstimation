@@ -93,6 +93,7 @@ void FaceTracker::Initialize()
 			throw(FaceTrackerException("Error : IFaceFrameSource::OpenReader()"));
 		}
 	}
+	
 	//set buffers
 	description->get_Width(&width);
 	description->get_Height(&height);
@@ -222,9 +223,12 @@ void FaceTracker::Run()
 							{
 								ExtractFaceRotationInDegrees(&faceRotation);
 							}
-
+							hResult = pFaceResult->GetFaceProperties(FaceProperty::FaceProperty_Count, facePropertyList);
+							if (SUCCEEDED(hResult))
+							{
+								ExtractFaceProperties();
+							}
 						}
-						SafeRelease(pFaceResult);
 					}
 				}
 				SafeRelease(pFaceFrame);
@@ -238,6 +242,53 @@ void FaceTracker::Run()
 		{
 			break;
 		}
+	}
+}
+FaceFeature FaceTracker::GetFaceFeatures() const
+{
+	return faceFeature;
+}
+void FaceTracker::ExtractFaceProperties()
+{
+	faceFeature.happy = false;
+	faceFeature.engaged = false;
+	faceFeature.leftEyeClosed = false;
+	faceFeature.lookingAway = false;
+	faceFeature.mouthMoved = false;
+	faceFeature.mouthOpen = false;
+	faceFeature.rightEyeClosed = false;
+	faceFeature.wearingGlasses = false;
+	if (facePropertyList[0] == DetectionResult::DetectionResult_Maybe || facePropertyList[0] == DetectionResult::DetectionResult_Yes)
+	{
+		faceFeature.happy = true;
+	}
+	if (facePropertyList[1] == DetectionResult::DetectionResult_Maybe || facePropertyList[1] == DetectionResult::DetectionResult_Yes)
+	{
+		faceFeature.engaged = true;
+	}
+	if (facePropertyList[2] == DetectionResult::DetectionResult_Maybe || facePropertyList[2] == DetectionResult::DetectionResult_Yes)
+	{
+		faceFeature.wearingGlasses = true;
+	}
+	if (facePropertyList[3] == DetectionResult::DetectionResult_Maybe || facePropertyList[3] == DetectionResult::DetectionResult_Yes)
+	{
+		faceFeature.leftEyeClosed = true;
+	}
+	if (facePropertyList[4] == DetectionResult::DetectionResult_Maybe || facePropertyList[4] == DetectionResult::DetectionResult_Yes)
+	{
+		faceFeature.rightEyeClosed = true;
+	}
+	if (facePropertyList[5] == DetectionResult::DetectionResult_Maybe || facePropertyList[5] == DetectionResult::DetectionResult_Yes)
+	{
+		faceFeature.mouthOpen = true;
+	}
+	if (facePropertyList[6] == DetectionResult::DetectionResult_Maybe || facePropertyList[6] == DetectionResult::DetectionResult_Yes)
+	{
+		faceFeature.mouthMoved = true;
+	}
+	if (facePropertyList[7] == DetectionResult::DetectionResult_Maybe || facePropertyList[7] == DetectionResult::DetectionResult_Yes)
+	{
+		faceFeature.lookingAway = true;
 	}
 }
 void FaceTracker::ExtractFaceRotationInDegrees(const Vector4* pQuaternion)
