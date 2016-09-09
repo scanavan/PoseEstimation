@@ -63,6 +63,7 @@ public:
 	FaceFeature GetFaceFeatures() const;
 	//if face is found
 	bool FaceFound();
+	int* GetIDs();
 
 private:
 	HRESULT hResult;
