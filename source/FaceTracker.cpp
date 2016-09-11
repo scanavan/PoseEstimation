@@ -3,6 +3,15 @@
 #include <iostream>
 #include <thread>
 
+int IDPTR[] = { -1, -1, -1, -1, -1, -1 };
+
+
+int* FaceTracker::GetIDs() {
+	return IDPTR;
+}
+
+//const int PERSON_COLOR = 0;
+
 FaceTracker::FaceTracker(std::string name) :
 	windowName(name)
 {
@@ -207,6 +216,7 @@ void FaceTracker::Run()
 							cv::circle(bufferMat, cv::Point(static_cast<int>(facePoint[2].X), static_cast<int>(facePoint[2].Y)), 5, static_cast<cv::Scalar>(faceColors[i]), -1, CV_AA); // Nose
 							cv::circle(bufferMat, cv::Point(static_cast<int>(facePoint[3].X), static_cast<int>(facePoint[3].Y)), 5, static_cast<cv::Scalar>(faceColors[i]), -1, CV_AA); // Mouth (Left)
 							cv::circle(bufferMat, cv::Point(static_cast<int>(facePoint[4].X), static_cast<int>(facePoint[4].Y)), 5, static_cast<cv::Scalar>(faceColors[i]), -1, CV_AA); // Mouth (Right)
+							IDPTR[i] = i;
 
 							// Face Bounding Box
 							RectI boundingBox;
@@ -248,6 +258,7 @@ FaceFeature FaceTracker::GetFaceFeatures() const
 {
 	return faceFeature;
 }
+
 void FaceTracker::ExtractFaceProperties()
 {
 	faceFeature.happy = false;
